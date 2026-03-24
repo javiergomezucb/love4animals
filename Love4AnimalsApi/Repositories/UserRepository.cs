@@ -7,16 +7,22 @@ namespace Love4AnimalsApi.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private List<User> Users { get; set; }
+    private static List<User> _users = new List<User>();
 
     public UserRepository()
     {
-        this.Users = [];
-        User newUser = new(1, "Name", "test@gmail.com");
-        this.Users.Add(newUser);
+    if (_users.Count == 0)
+        {
+        _users.Add(new User(1, "Name", "test@gmail.com"));
+        }
     }
-    public User getUser()
+    public User getUser(int id)
     {
-        return this.Users.First();
+        return _users.FirstOrDefault(u => u.Id == id);
+    }
+    public void addUser(User user)
+    {
+     _users.Add(user);
     }
 }
+

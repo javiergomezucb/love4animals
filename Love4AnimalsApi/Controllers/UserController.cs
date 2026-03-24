@@ -4,19 +4,31 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Love4AnimalsApi.Controllers
 {
-    [Route("v1/users")]
     [ApiController]
+    [Route("v1/users")] 
     public class UserController : ControllerBase
     {
-        private IUserService userService;
-        public UserController (IUserService userService)
+        private readonly IUserService _userService;
+
+        public UserController(IUserService userService)
         {
-            this.userService = userService;
+            _userService = userService;
         }
-        [HttpGet("")]
-        public GetUserDto GetUser(int Id)
+
+        [HttpGet("{Id}")]
+        public IActionResult GetUser([FromRoute] int Id)
         {
-            return this.userService.GetUser();
-        } 
+            var user = _userService.GetUser(Id);
+            if (user == null) return NotFound("Usuario no encontrado");
+            return Ok(user);
+        }
+
+        [HttpPost("")]
+        public IActionResult Register([FromBody] CreateUserDto userDto)
+        {
+            _userService.CreateUser(userDto);
+            return Ok("Usuario registrado con éxito");
+        }
     }
 }
+

@@ -1,6 +1,6 @@
 @Love4AnimalsApi_HostAddress = http://localhost:5239
 
-GET http://localhost:5239/v1/user/
+GET {{Love4AnimalsApi_HostAddress}}/v1/users/1
 Accept: application/json
 
 ###
