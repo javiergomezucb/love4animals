@@ -1,39 +1,44 @@
+using Love4AnimalsApi.Data;
+using Love4AnimalsApi.Interfaces;
 using Love4AnimalsApi.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace Love4AnimalsApi.Repositories
+namespace Love4AnimalsApi.Repositories;
+
+public class CampaignRepository : ICampaignRepository
 {
-    public class CampaignRepository
+    private readonly AppDbContext _context;
+
+    public CampaignRepository(AppDbContext context)
     {
-        private static List<Campaign> _campaigns = new List<Campaign>();
+        _context = context;
+    }
 
-        public CampaignRepository()
-        {
-            if (_campaigns.Count == 0)
-            {
-                _campaigns.Add(new Campaign(1, "Rescate Animal", "Ayuda a refugios locales"));
-            }
-        }
+    public async Task<IEnumerable<Campaign>> GetAllAsync()
+        => await _context.Campaigns.ToListAsync();
 
-        public List<Campaign> GetAll() => _campaigns;
+    public async Task<Campaign?> GetByIdAsync(int id)
+        => await _context.Campaigns.FindAsync(id);
 
-        public Campaign? GetById(int id) => _campaigns.FirstOrDefault(c => c.Id == id);
+    // Implementamos GetCampaignAsync (es lo mismo que GetByIdAsync)
+    public async Task<Campaign?> GetCampaignAsync(int id)
+        => await _context.Campaigns.FindAsync(id);
 
-        public void Add(Campaign campaign)
-        {
-            campaign.Id = _campaigns.Count > 0 ? _campaigns.Max(c => c.Id) + 1 : 1;
-            _campaigns.Add(campaign);
-        }
+    public async Task<Campaign?> AddAsync(Campaign campaign)
+    {
+        await _context.Campaigns.AddAsync(campaign);
+        await _context.SaveChangesAsync();
+        return campaign;
+    }
 
-        public void Update(Campaign campaign)
-        {
-            var existing = GetById(campaign.Id);
-            if (existing != null)
-            {
-                existing.Title = campaign.Title;
-                existing.Description = campaign.Description;
-            }
-        }
+    // Lógica para sumar fondos a la campaña automáticamente
+    public async Task<bool> CollectFundsAsync(int campaignId, decimal amount)
+    {
+        var campaign = await _context.Campaigns.FindAsync(campaignId);
+        if (campaign == null) return false;
 
-        public void Delete(int id) => _campaigns.RemoveAll(c => c.Id == id);
+        campaign.AmountCollected += amount; // Sumamos la donación al total
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

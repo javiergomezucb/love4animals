@@ -1,21 +1,20 @@
-namespace Love4AnimalsApi.Dtos
+namespace Love4AnimalsApi.Dtos;
+
+public class GetUserDto
 {
-    public class GetUserDto
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; } 
-        public string? Email { get; set; }
-    }
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
 
-    public class CreateUserDto
-    {
-        public string Name { get; set; }
-        public string Email { get; set; }
-    }
+public class CreateUserDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
 
-    public class UpdateUserDto
-    {
-        public string Name { get; set; }
-        public string Email { get; set; }
-    }
+public class UpdateUserDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 }

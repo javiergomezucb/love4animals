@@ -1,10 +1,8 @@
-using System;
 using Love4AnimalsApi.Models;
-
-namespace Love4AnimalsApi.Interfaces;
-
 public interface IUserRepository
-    {
-        User? getUser(int id); 
-        void addUser(User user); 
-    }
+{
+    Task<User?> GetUserAsync(int id);
+    Task AddUserAsync(User user);
+    Task UpdateUserAsync(User user);
+    Task DeleteUserAsync(int id);
+}

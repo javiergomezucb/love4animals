@@ -1,12 +1,11 @@
 using Love4AnimalsApi.Dtos;
 
-namespace Love4AnimalsApi.Interfaces
+namespace Love4AnimalsApi.Interfaces;
+
+public interface IUserService
 {
-   public interface IUserService
-    {
-        GetUserDto? GetUser(int id); 
-        void CreateUser(CreateUserDto user);
-        void UpdateUser(int id, UpdateUserDto user);
-        void DeleteUser(int id); 
-    }
+    Task<GetUserDto?> GetUserAsync(int id);
+    Task<GetUserDto> CreateUserAsync(CreateUserDto userDto);
+    Task<GetUserDto> UpdateUserAsync(int id, UpdateUserDto userDto);
+    Task DeleteUserAsync(int id);
 }

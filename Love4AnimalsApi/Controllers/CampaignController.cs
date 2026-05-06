@@ -1,45 +1,41 @@
 using Love4AnimalsApi.Dtos;
-using Love4AnimalsApi.Models;
-using Love4AnimalsApi.Repositories;
+using Love4AnimalsApi.Interfaces;
+using Love4AnimalsApi.Models; // Asegúrate de que apunte a tus modelos
 using Microsoft.AspNetCore.Mvc;
 
-namespace Love4AnimalsApi.Controllers
+namespace Love4AnimalsApi.Controllers;
+
+[ApiController]
+[Route("v1/campaigns")]
+public class CampaignController : ControllerBase
 {
-    [ApiController]
-    [Route("v1/campaigns")]
-    public class CampaignController : ControllerBase
+    // Cambiamos el Service por el Repository para resolver el error de resolución
+    private readonly ICampaignRepository _repository;
+
+    public CampaignController(ICampaignRepository repository)
     {
-        private readonly CampaignRepository _repository;
+        _repository = repository;
+    }
 
-        public CampaignController()
-        {
-            _repository = new CampaignRepository();
-        }
+    [HttpGet]
+    public async Task<IActionResult> GetAll() 
+    {
+        var campaigns = await _repository.GetAllAsync();
+        return Ok(campaigns);
+    }
 
-        [HttpGet]
-        public IActionResult GetAll() => Ok(_repository.GetAll());
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateCampaignDto dto)
+    {
+        var newCampaign = new Campaign 
+        { 
+            Title = dto.Title, 
+            Description = dto.Description, 
+            GoalAmount = dto.GoalAmount,
+            AmountCollected = 0 
+        };
 
-        [HttpPost]
-        public IActionResult Create([FromBody] CreateCampaignDto dto)
-        {
-            var newCampaign = new Campaign(0, dto.Title!, dto.Description!);
-            _repository.Add(newCampaign);
-            return Ok("Campaña creada");
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] CreateCampaignDto dto)
-        {
-            var campaign = new Campaign(id, dto.Title!, dto.Description!);
-            _repository.Update(campaign);
-            return Ok("Campaña actualizada");
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            _repository.Delete(id);
-            return Ok("Campaña eliminada");
-        }
+        var result = await _repository.AddAsync(newCampaign);
+        return Ok(result);
     }
 }
