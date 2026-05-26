@@ -1,8 +1,7 @@
-
-using System.Threading.Tasks; // Necesario para Task
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Love4AnimalsApi.Dtos;
-using Love4AnimalsApi.Interfaces; // Usamos la interfaz para mayor profesionalismo
-using Love4AnimalsApi.Models;
+using Love4AnimalsApi.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,41 +11,39 @@ namespace Love4AnimalsApi.Controllers;
 [Route("v1/donations")]
 public class DonationController : ControllerBase
 {
-    private readonly IDonationRepository _repository;
+    private readonly IDonationService _donationService;
 
-    public DonationController(IDonationRepository repository)
+    public DonationController(IDonationService donationService)
     {
-        _repository = repository;
+        _donationService = donationService;
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetDonationDto>))]
     public async Task<IActionResult> GetAll()
     {
-        // Usamos await y el nuevo nombre GetAllAsync
-        var donations = await _repository.GetAllAsync();
+        var donations = await _donationService.GetDonationsAsync();
         return Ok(donations);
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetDonationDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateDonationDto dto)
     {
-        var newDonation = new Donation(0, dto.Amount, dto.CampaignId, dto.DonorName);
-
-        // Usamos await y el nombre AddAsync
-        var result = await _repository.AddAsync(newDonation);
+        var result = await _donationService.CreateDonationAsync(dto);
 
         if (result == null)
         {
-            return BadRequest(new {
+            return BadRequest(new
+            {
                 success = false,
                 message = "No se pudo realizar la donación: La campaña no existe."
             });
         }
 
-        return Ok(new {
+        return Ok(new
+        {
             success = true,
             message = "¡Donación recibida! Gracias por apoyar a los animales.",
             data = result
@@ -56,10 +53,9 @@ public class DonationController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(int id) // ✅ CORREGIDO: Signature limpia con IActionResult
     {
-        // Usamos await y el nombre DeleteAsync
-        var deleted = await _repository.DeleteAsync(id);
+        var deleted = await _donationService.DeleteDonationAsync(id);
         if (!deleted)
             return NotFound(new { success = false, message = "Donación no encontrada" });
 

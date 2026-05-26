@@ -1,7 +1,9 @@
 using Love4AnimalsApi.Dtos;
 using Love4AnimalsApi.Interfaces;
-using Love4AnimalsApi.Models; // Asegúrate de que apunte a tus modelos
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Love4AnimalsApi.Controllers;
 
@@ -9,33 +11,28 @@ namespace Love4AnimalsApi.Controllers;
 [Route("v1/campaigns")]
 public class CampaignController : ControllerBase
 {
-    // Cambiamos el Service por el Repository para resolver el error de resolución
-    private readonly ICampaignRepository _repository;
+    private readonly ICampaignService _campaignService;
 
-    public CampaignController(ICampaignRepository repository)
+    public CampaignController(ICampaignService campaignService)
     {
-        _repository = repository;
+        _campaignService = campaignService;
     }
 
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetCampaignDto>))]
     public async Task<IActionResult> GetAll() 
     {
-        var campaigns = await _repository.GetAllAsync();
+        var campaigns = await _campaignService.GetCampaignsAsync();
         return Ok(campaigns);
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(GetCampaignDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateCampaignDto dto)
     {
-        var newCampaign = new Campaign 
-        { 
-            Title = dto.Title, 
-            Description = dto.Description, 
-            GoalAmount = dto.GoalAmount,
-            AmountCollected = 0 
-        };
 
-        var result = await _repository.AddAsync(newCampaign);
-        return Ok(result);
+        var result = await _campaignService.CreateCampaignAsync(dto);
+        return Created($"/v1/campaigns/{result.Id}", result);
     }
 }
